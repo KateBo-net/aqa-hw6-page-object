@@ -1,0 +1,1 @@
+[![Java CI with Gradle](https://github.com/KateBo-net/aqa-hw6-page-object/actions/workflows/gradle.yml/badge.svg)](https://github.com/KateBo-net/aqa-hw6-page-object/actions/workflows/gradle.yml)
