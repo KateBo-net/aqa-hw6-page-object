@@ -36,6 +36,6 @@ public class TransferPage {
     }
 
     public void findErrorMsg(){
-        errorNotification.shouldBe(visible, Duration.ofSeconds(5));
+        errorNotification.shouldBe(visible);
     }
 }

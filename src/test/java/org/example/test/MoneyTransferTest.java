@@ -25,7 +25,6 @@ public class MoneyTransferTest {
         dashboardPage = verificationPage.validVerify(DataHelper.getVerificationCodeFor(authInfo));
         firstCard = DataHelper.getCardInfo(0, dashboardPage.getCardBalance(0));
         secondCard = DataHelper.getCardInfo(1, dashboardPage.getCardBalance(1));
-        dashboardPage.resetBalance(firstCard, secondCard);
     }
 
     @Test

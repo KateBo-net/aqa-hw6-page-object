@@ -2,7 +2,6 @@ package org.example.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import org.example.data.DataHelper;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -31,16 +30,6 @@ public class DashboardPage {
     public TransferPage goToTransferPage(int index) {
         goToTransferBtn.get(index).click();
         return new TransferPage();
-    }
-
-    public void resetBalance(DataHelper.CardInfo firstCard, DataHelper.CardInfo secondCard)  {
-        if (firstCard.getBalance() < 10000) {
-            int amount = 10000 - firstCard.getBalance();
-            goToTransferPage(0).doValidTransfer(String.valueOf(amount), secondCard.getNumber());
-        } else if (firstCard.getBalance() > 10000) {
-            int amount = firstCard.getBalance() - 10000;
-            goToTransferPage(1).doValidTransfer(String.valueOf(amount), firstCard.getNumber());
-        }
     }
 
 }
