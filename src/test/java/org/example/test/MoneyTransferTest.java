@@ -3,11 +3,12 @@ package org.example.test;
 import org.example.data.DataHelper;
 import org.example.page.DashboardPage;
 import org.example.page.LoginPage;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Selenide.open;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MoneyTransferTest {
 
@@ -16,7 +17,7 @@ public class MoneyTransferTest {
     DashboardPage dashboardPage;
 
     @BeforeEach
-    void setup() throws InterruptedException {
+    void setup() {
         open("http://localhost:9999");
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
@@ -28,43 +29,46 @@ public class MoneyTransferTest {
     }
 
     @Test
-    public void shouldTransferFromFirstCard(){
-        var transferPage = dashboardPage.goToTransferPage(1);
-        var amount = DataHelper.generateValidAmount(firstCard.getBalance());
-        dashboardPage = transferPage.topUpBalance(amount, firstCard);
-
-        int actualFrom = dashboardPage.getCardBalance(1);
-        int expectedFrom = firstCard.getBalance() + amount;
-
-        int actualTo = dashboardPage.getCardBalance(0);
-        int expectedTo = secondCard.getBalance() - amount;
-
-        Assertions.assertEquals(expectedFrom, actualFrom);
-        Assertions.assertEquals(expectedTo, actualTo);
-    }
-
-    @Test
-    public void shouldTransferFromSecondCard(){
+    public void shouldTransferFromSecondCard() {
         var transferPage = dashboardPage.goToTransferPage(0);
         var amount = DataHelper.generateValidAmount(secondCard.getBalance());
-        dashboardPage = transferPage.topUpBalance(amount, secondCard);
-
-        int actualTo = dashboardPage.getCardBalance(0);
-        int expectedTo = firstCard.getBalance() + amount;
+        dashboardPage = transferPage.doValidTransfer(String.valueOf(amount), secondCard.getNumber());
 
         int actualFrom = dashboardPage.getCardBalance(1);
         int expectedFrom = secondCard.getBalance() - amount;
 
-        Assertions.assertEquals(expectedFrom, actualFrom);
-        Assertions.assertEquals(expectedTo, actualTo);
+        int actualTo = dashboardPage.getCardBalance(0);
+        int expectedTo = firstCard.getBalance() + amount;
+
+        assertAll(
+                () -> assertEquals(expectedFrom, actualFrom),
+                () -> assertEquals(expectedTo, actualTo)
+        );
     }
 
     @Test
-    public void shouldNotTransferMoreThanBalance() throws InterruptedException {
+    public void shouldTransferFromFirstCard() {
+        var transferPage = dashboardPage.goToTransferPage(1);
+        var amount = DataHelper.generateValidAmount(firstCard.getBalance());
+        dashboardPage = transferPage.doValidTransfer(String.valueOf(amount), firstCard.getNumber());
+
+        int actualFrom = dashboardPage.getCardBalance(0);
+        int expectedFrom = firstCard.getBalance() - amount;
+
+        int actualTo = dashboardPage.getCardBalance(1);
+        int expectedTo = secondCard.getBalance() + amount;
+
+        assertAll(
+                () -> assertEquals(expectedFrom, actualFrom),
+                () -> assertEquals(expectedTo, actualTo)
+        );
+    }
+
+    @Test
+    public void shouldNotTransferMoreThanBalance() {
         var transferPage = dashboardPage.goToTransferPage(0);
         var amount = secondCard.getBalance() + 1;
-        dashboardPage = transferPage.topUpBalance(amount, secondCard);
-        Thread.sleep(5000);
+        dashboardPage = transferPage.doValidTransfer(String.valueOf(amount), secondCard.getNumber());
 
         int actualTo = dashboardPage.getCardBalance(0);
         int expectedTo = firstCard.getBalance();
@@ -72,7 +76,16 @@ public class MoneyTransferTest {
         int actualFrom = dashboardPage.getCardBalance(1);
         int expectedFrom = secondCard.getBalance();
 
-        Assertions.assertEquals(expectedFrom, actualFrom);
-        Assertions.assertEquals(expectedTo, actualTo);
+        assertAll(
+                () -> assertEquals(expectedFrom, actualFrom),
+                () -> assertEquals(expectedTo, actualTo)
+        );
+    }
+
+    @Test
+    public void shouldGetErrorWrongCardNumber() {
+        var transferPage = dashboardPage.goToTransferPage(0);
+        transferPage.topUpBalance("", "");
+        transferPage.findErrorMsg();
     }
 }

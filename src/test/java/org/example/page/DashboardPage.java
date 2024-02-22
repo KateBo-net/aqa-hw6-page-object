@@ -4,8 +4,6 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.example.data.DataHelper;
 
-import java.util.Arrays;
-
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
@@ -35,13 +33,13 @@ public class DashboardPage {
         return new TransferPage();
     }
 
-    public void resetBalance(DataHelper.CardInfo firstCard, DataHelper.CardInfo secondCard) {
+    public void resetBalance(DataHelper.CardInfo firstCard, DataHelper.CardInfo secondCard)  {
         if (firstCard.getBalance() < 10000) {
             int amount = 10000 - firstCard.getBalance();
-            goToTransferPage(0).topUpBalance(amount, secondCard);
+            goToTransferPage(0).doValidTransfer(String.valueOf(amount), secondCard.getNumber());
         } else if (firstCard.getBalance() > 10000) {
             int amount = firstCard.getBalance() - 10000;
-            goToTransferPage(1).topUpBalance(amount, firstCard);
+            goToTransferPage(1).doValidTransfer(String.valueOf(amount), firstCard.getNumber());
         }
     }
 
